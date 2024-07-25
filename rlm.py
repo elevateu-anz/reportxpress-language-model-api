@@ -5,10 +5,20 @@ import ast
 import xml.etree.ElementTree as ET
 import spacy
 import openai
+import google.generativeai as genai
 
 #load language library
 nlp = spacy.load('en_core_web_sm')
 
+def connect_to_gemini():
+     genai.configure(api_key=os.environ["API_KEY"])
+     model = genai.GenerativeModel('gemini-1.5-flash')
+     return model
+
+def get_content(model, request):
+     response = model.generate_content("rite a query to get top 5 order details from orders table. write only query no any other text")
+     return response
+     
 def connect_to_openai():
     '''authorise the connection to OpenAI api'''
     openai.organization = ""
@@ -74,3 +84,10 @@ def generate_report(request):
     reportquery = get_response(model, instructions, request)
     reportdata = reportquery
     return reportdata
+
+
+def gen_gem_query(request):
+    '''main mathod to trigger the report generation processing'''
+    model = connect_to_gemini()
+    reportquery = get_content(model, request)
+    return reportquery
