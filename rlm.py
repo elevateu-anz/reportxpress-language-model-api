@@ -9,6 +9,8 @@ import spacy
 import openai
 import google.generativeai as genai
 import sqlparse
+import pyodbc
+import pandas as pd
 
 from IPython.display import display
 from IPython.display import Markdown
@@ -111,12 +113,30 @@ def get_gemini_query(request):
     reportquery = get_gemini_response(model, request)
     return reportquery
 
+def execute_query(query):
+    '''method to connect with Azure Cloud SQL and execute the query on the application database to get the report data'''
+    server = 'tcp:elevateu-reportxpress.database.windows.net,1433'
+    database = 'bank_db'
+    username = 'elevateu'
+    password = ''
+    conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    report_data = pd.DataFrame(rows)
+    cursor.close()
+    conn.close()
+    return report_data.head(10)
+
+
 def extract_data(query):
     '''method to execute the query on application database and get the data extract'''
-    report_data='Test data'
+    report_data = execute_query(query)
     return report_data
 
 def get_report_data(request):
     '''main maithod to be called from api end-point'''
     query = get_gemini_query(request)
     report_data=extract_data(query)
+
