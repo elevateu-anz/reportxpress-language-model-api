@@ -17,21 +17,23 @@ from IPython.display import Markdown
 nlp = spacy.load('en_core_web_sm')
 
 def to_markdown(text):
+  '''method to generate the markdown text'''
   text = text.replace('•', '  *')
   return Markdown(textwrap.indent(text, '> ', predicate=lambda _: True))
 
-
 def connect_to_vertexai():
-     genai.configure(api_key="")
+     '''method to authorize the connection to VertexAI api'''
+     genai.configure(api_key="AIzaSyAfmdiTaTon3Ip1XsikGsC6-7YYZ_gUOTc")
      model = genai.GenerativeModel('gemini-1.5-flash')
      return model
 
 def get_gemini_response(model, request):
+     '''method to request content from VertexAI gemini LLM'''
      response = model.generate_content(request)
      return extract_sql_query(response.text)
 
 def connect_to_openai():
-    '''authorise the connection to OpenAI api'''
+    '''method to authorize the connection to OpenAI api'''
     openai.organization = ""
     openai.api_key = ""
     openai.Model.list()
@@ -39,7 +41,7 @@ def connect_to_openai():
     return model_name
 
 def get_gpt_response(model_input, instruction, request):
-    '''method to request suggestion from OpenAI API'''
+    '''method to request content from OpenAI gpt LLM'''
     response = openai.ChatCompletion.create(
         model=model_input,
         messages=[
@@ -55,7 +57,7 @@ def get_gpt_response(model_input, instruction, request):
     return response['choices'][0]['message']['content']
 
 def reportxpress_finetuning(code_input, match_replace):
-    '''replacing config key-matches in response text'''
+    '''method for replacing config key-matches in response text'''
     for match in match_replace:
             if str(match) !='{}':
                 for key, value in match.items():
@@ -64,7 +66,7 @@ def reportxpress_finetuning(code_input, match_replace):
     return code_input
 
 def get_config_match(match_input, match_replace):
-    '''find the config keys from configuration'''
+    '''method to find the config keys from configuration'''
     matched=''
     for match in match_replace:
             if str(match) !='{}':
@@ -74,7 +76,7 @@ def get_config_match(match_input, match_replace):
     return str(matched)
 
 def read_reportxpress_config(tag_value, lang_input):
-    '''read from reportxpress configuration files'''
+    '''method to read from reportxpress configuration files'''
     current_dir = os.path.dirname(__file__)
     tree = ET.parse(current_dir + "/reportxpress-config.xml")
     root = tree.getroot()
@@ -88,25 +90,33 @@ def read_reportxpress_config(tag_value, lang_input):
     return match_replace_list
 
 def extract_sql_query(text):
+  '''method to extract exact sql queries from the llm response'''
   text = text.strip('"')
   start_index = text.find('SELECT')
   sql_query = text[start_index:]
   sql_query = re.sub(r'\W+$', '', sql_query)
   return sql_query
 
-def gen_gpt_query(request):
-    '''main mathod to trigger the report generation processing'''
+def get_gpt_query(request):
+    '''mathod to generate query content using openai gpt LLM model'''
     model = connect_to_openai()
     instructions=''
     reportquery = get_gpt_response(model, instructions, request)
     reportdata = reportquery
     return reportdata
 
-def gen_gemini_query(request):
-    '''main mathod to trigger the report generation processing'''
+def get_gemini_query(request):
+    '''mathod to generate query content using vertexai gemini LLM model'''
     model = connect_to_vertexai()
     reportquery = get_gemini_response(model, request)
     return reportquery
 
-result = gen_gemini_query("Write a query to get top 5 order details from orders table. write only query no any other text")
-print(result)
+def extract_data(query):
+    '''method to execute the query on application database and get the data extract'''
+    report_data='Test data'
+    return report_data
+
+def get_report_data(request):
+    '''main maithod to be called from api end-point'''
+    query = get_gemini_query(request)
+    report_data=extract_data(query)
