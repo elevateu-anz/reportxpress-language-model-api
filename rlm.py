@@ -23,7 +23,7 @@ def to_markdown(text):
 
 def connect_to_vertexai():
      '''method to authorize the connection to VertexAI api'''
-     genai.configure(api_key="AIzaSyAfmdiTaTon3Ip1XsikGsC6-7YYZ_gUOTc")
+     genai.configure(api_key="")
      model = genai.GenerativeModel('gemini-1.5-flash')
      return model
 
