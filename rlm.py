@@ -11,14 +11,14 @@ import google.generativeai as genai
 nlp = spacy.load('en_core_web_sm')
 
 def connect_to_gemini():
-     genai.configure(api_key=os.environ["API_KEY"])
+     genai.configure(api_key="")
      model = genai.GenerativeModel('gemini-1.5-flash')
      return model
 
 def get_content(model, request):
-     response = model.generate_content("rite a query to get top 5 order details from orders table. write only query no any other text")
-     return response
-     
+     response = model.generate_content(request)
+     return response.text
+
 def connect_to_openai():
     '''authorise the connection to OpenAI api'''
     openai.organization = ""
@@ -91,3 +91,6 @@ def gen_gem_query(request):
     model = connect_to_gemini()
     reportquery = get_content(model, request)
     return reportquery
+
+result = gen_gem_query("Write a query to get top 5 order details from orders table. write only query no any other text")
+print(result)
