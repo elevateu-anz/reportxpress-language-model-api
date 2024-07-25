@@ -2,22 +2,33 @@
 import re
 import os
 import ast
+import pathlib
+import textwrap
 import xml.etree.ElementTree as ET
 import spacy
 import openai
 import google.generativeai as genai
+import sqlparse
+
+from IPython.display import display
+from IPython.display import Markdown
 
 #load language library
 nlp = spacy.load('en_core_web_sm')
 
-def connect_to_gemini():
+def to_markdown(text):
+  text = text.replace('•', '  *')
+  return Markdown(textwrap.indent(text, '> ', predicate=lambda _: True))
+
+
+def connect_to_vertexai():
      genai.configure(api_key="")
      model = genai.GenerativeModel('gemini-1.5-flash')
      return model
 
-def get_content(model, request):
+def get_gemini_response(model, request):
      response = model.generate_content(request)
-     return response.text
+     return extract_sql_query(response.text)
 
 def connect_to_openai():
     '''authorise the connection to OpenAI api'''
@@ -27,7 +38,7 @@ def connect_to_openai():
     model_name = "gpt-3.5-turbo"
     return model_name
 
-def get_response(model_input, instruction, request):
+def get_gpt_response(model_input, instruction, request):
     '''method to request suggestion from OpenAI API'''
     response = openai.ChatCompletion.create(
         model=model_input,
@@ -76,21 +87,26 @@ def read_reportxpress_config(tag_value, lang_input):
         match_replace_list.append(match_replace)
     return match_replace_list
 
+def extract_sql_query(text):
+  text = text.strip('"')
+  start_index = text.find('SELECT')
+  sql_query = text[start_index:]
+  sql_query = re.sub(r'\W+$', '', sql_query)
+  return sql_query
 
-def generate_report(request):
+def gen_gpt_query(request):
     '''main mathod to trigger the report generation processing'''
     model = connect_to_openai()
     instructions=''
-    reportquery = get_response(model, instructions, request)
+    reportquery = get_gpt_response(model, instructions, request)
     reportdata = reportquery
     return reportdata
 
-
-def gen_gem_query(request):
+def gen_gemini_query(request):
     '''main mathod to trigger the report generation processing'''
-    model = connect_to_gemini()
-    reportquery = get_content(model, request)
+    model = connect_to_vertexai()
+    reportquery = get_gemini_response(model, request)
     return reportquery
 
-result = gen_gem_query("Write a query to get top 5 order details from orders table. write only query no any other text")
+result = gen_gemini_query("Write a query to get top 5 order details from orders table. write only query no any other text")
 print(result)
