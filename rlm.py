@@ -129,7 +129,6 @@ def execute_query(query):
     conn.close()
     return report_data.head(10)
 
-
 def extract_data(query):
     '''method to execute the query on application database and get the data extract'''
     report_data = execute_query(query)
@@ -139,4 +138,9 @@ def get_report_data(request):
     '''main maithod to be called from api end-point'''
     query = get_gemini_query(request)
     report_data=extract_data(query)
+    return report_data
 
+def export_report(type):
+    '''main method to be called from api export endpoint to export the report'''
+    export = any
+    return export
