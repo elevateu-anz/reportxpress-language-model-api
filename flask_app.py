@@ -10,9 +10,9 @@ def get_report_data():
 
 @app.route("/export")
 def export_report():
-    type = request.args.get('type')
     data = request.args.get('request')
-    return export_report(type, data)
+    type = request.args.get('type')
+    return export_report(data, type)
  
 if __name__ == '__main__': 
    app.run()
