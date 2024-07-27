@@ -1,19 +1,18 @@
 '''import libraries'''
 import re
 import os
-import ast
-import pathlib
 import textwrap
 import xml.etree.ElementTree as ET
 import spacy
 import openai
 import google.generativeai as genai
-import sqlparse
 import pyodbc
 import pandas as pd
+import matplotlib.pyplot as plt
 
-from IPython.display import display
 from IPython.display import Markdown
+from matplotlib.backends.backend_pdf import PdfPages
+from datetime import datetime
 
 #load language library
 nlp = spacy.load('en_core_web_sm')
@@ -127,7 +126,7 @@ def execute_query(query):
     report_data = pd.DataFrame(rows)
     cursor.close()
     conn.close()
-    return report_data.head(10)
+    return report_data
 
 def extract_data(query):
     '''method to execute the query on application database and get the data extract'''
@@ -137,10 +136,26 @@ def extract_data(query):
 def get_report_data(request):
     '''main maithod to be called from api end-point'''
     query = get_gemini_query(request)
-    report_data=extract_data(query)
+    report_data = extract_data(query)
     return report_data
 
-def export_report(type):
+def export_report(report_data, type):
     '''main method to be called from api export endpoint to export the report'''
-    export = any
-    return export
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d %H:%M:%S")
+    date_str = date_str.replace('-', '_').replace(':', '_')
+    report_file=any
+    if type=='xlsx':
+        report_file = report_data.to_excel('report_' + date_str + '.xlsx', index=False, engine='openpyxl')
+    elif type=='pdf':
+        html = report_data.to_html()
+        with PdfPages('report_' + date_str + '.pdf') as pdf:
+            fig, ax = plt.subplots(figsize=(8, 4))
+            ax.axis('tight')
+            ax.axis('off')
+            table = ax.table(cellText = report_data.values, colLabels = report_data.columns, cellLoc='center', loc='center')
+            report_file = pdf.savefig(fig)
+    else:
+        report_file = 'Report is not vailable in this file format'
+
+    return report_file
