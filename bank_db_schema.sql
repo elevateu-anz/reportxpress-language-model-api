@@ -24,7 +24,7 @@ CREATE TABLE [dbo].[account] (
 );
 
 CREATE TABLE [dbo].[customer] (
-    [customer_id]        BIGINT         IDENTITY (20240000101, 1) NOT NULL,
+    [customer_id]        BIGINT         IDENTITY (202400001, 1) NOT NULL,
     [customer_name]      VARCHAR(50)    NOT NULL,
     [dob]                DATE           NOT NULL,
     [mobile_no]          VARCHAR(20)    NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE [dbo].[credit_card] (
 );
 
 CREATE TABLE [dbo].[transaction] (
-    [transaction_id]     BIGINT        IDENTITY (20240000101, 1) NOT NULL,         
+    [transaction_id]     BIGINT        IDENTITY (2024000001, 1) NOT NULL,         
     [account_id]         BIGINT        NOT NULL,
     [customer_id]        BIGINT        NOT NULL,
     [amount]             INT           NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE [dbo].[loan] (
 
 CREATE TABLE [dbo].[borrower] (
     [borrower_id]     BIGINT        IDENTITY (2024001, 1) NOT NULL,
-    [loan_id]         VARCHAR (50)  NOT NULL,
+    [loan_id]         BIGINT        NOT NULL,
     [customer_id]     BIGINT        NOT NULL,
     CONSTRAINT [PK_borrower] PRIMARY KEY CLUSTERED ([borrower_id] ASC),
     CONSTRAINT FK_borrower_loan FOREIGN KEY (loan_id) REFERENCES loan(loan_id),
