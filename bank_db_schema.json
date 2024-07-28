@@ -1,0 +1,10 @@
+{
+    "tables": [
+      {"name": "branch", "columns": [{"name": "branch_id", "type": "int"}, {"name": "branch_name", "type": "string"}, {"name": "branch_address", "type": "string"}, {"name": "assets", "type": "int"}]},
+      {"name": "banker", "columns": [{"name": "banker_id", "type": "int"}, {"name": "banker_name", "type": "string"}, {"name": "branch_id", "type": "int"}]}
+    ],
+    "relationships": [
+      {"table1": "branch", "column1": "branch_id", "table2": "banker", "column2": "branch_id"}
+    ]
+  }
+  

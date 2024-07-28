@@ -7,7 +7,6 @@ import spacy
 import openai
 import google.generativeai as genai
 import pyodbc
-import pandas as pd
 import matplotlib.pyplot as plt
 
 from IPython.display import Markdown
@@ -122,8 +121,12 @@ def execute_query(query):
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
     cursor.execute(query)
+    column_names = [column[0] for column in cursor.description]
     rows = cursor.fetchall()
-    report_data = pd.DataFrame(rows)
+    data = [dict(zip(column_names, row)) for row in rows]
+    report_data=[]
+    for row in data:
+        report_data.append(row)
     cursor.close()
     conn.close()
     return report_data
@@ -133,9 +136,11 @@ def extract_data(query):
     report_data = execute_query(query)
     return report_data
 
-def get_report_data(request):
+def get_report_data(input):
     '''main maithod to be called from api end-point'''
-    query = get_gemini_query(request)
+    system_message='. write only sql query. no any additional text'
+    input += system_message
+    query = get_gemini_query(input)
     report_data = extract_data(query)
     return report_data
 
