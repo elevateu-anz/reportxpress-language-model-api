@@ -1,10 +1,28 @@
 {
     "tables": [
       {"name": "branch", "columns": [{"name": "branch_id", "type": "int"}, {"name": "branch_name", "type": "string"}, {"name": "branch_address", "type": "string"}, {"name": "assets", "type": "int"}]},
-      {"name": "banker", "columns": [{"name": "banker_id", "type": "int"}, {"name": "banker_name", "type": "string"}, {"name": "branch_id", "type": "int"}]}
+      {"name": "banker", "columns": [{"name": "banker_id", "type": "int"}, {"name": "banker_name", "type": "string"}, {"name": "branch_id", "type": "int"}]},
+      {"name": "account","columns": [{"name": "account_id", "type": "bigint"},{"name": "account_balance", "type": "int"}, {"name": "account_type", "type": "string"}, {"name": "branch_id", "type": "int"}]},
+      {"name": "customer", "columns": [{"name": "customer_id", "type": "bigint"},{"name": "customer_name", "type": "string"},{"name": "dob", "type": "date"},{"name": "mobile_no", "type": "string"},{"name": "account_id", "type": "bigint"}]},
+      {"name": "credit_card", "columns": [{"name": "credit_card_id", "type": "int"},{"name": "expiry_date", "type": "date"},{"name": "card_limit", "type": "int"},{"name": "credit_card_num", "type": "string"},{"name": "account_id", "type": "bigint"},{"name": "customer_id", "type": "bigint"}]},
+      {"name": "transaction", "columns": [{"name": "transaction_id", "type": "bigint"},{"name": "account_id", "type": "bigint"},{"name": "customer_id", "type": "bigint"},{"name": "amount", "type": "int"}]},
+      {"name": "loan",  "columns": [{"name": "loan_id", "type": "bigint"},{"name": "issued_amount", "type": "int"},{"name": "remaining_amount", "type": "int"},{"name": "branch_id", "type": "int"},{"name": "account_id", "type": "bigint"}]},
+      {"name": "borrower",  "columns": [{"name": "borrower_id", "type": "bigint"},{"name": "loan_id", "type": "bigint"},{"name": "customer_id", "type": "bigint"}]},
+      {"name": "loan_payment", "columns": [{"name": "loan_payment_id", "type": "int"},{"name": "loan_id", "type": "bigint"},{"name": "amount", "type": "int"}]}
     ],
     "relationships": [
       {"table1": "branch", "column1": "branch_id", "table2": "banker", "column2": "branch_id"}
+      {"table1": "account", "column1": "branch_id", "table2": "branch", "column2": "branch_id"},
+      {"table1": "customer", "column1": "account_id", "table2": "account", "column2": "account_id"},
+      {"table1": "credit_card", "column1": "account_id", "table2": "account", "column2": "account_id"},
+      {"table1": "credit_card", "column1": "customer_id", "table2": "customer", "column2": "customer_id"},
+      {"table1": "transaction", "column1": "account_id", "table2": "account", "column2": "account_id"},
+      {"table1": "transaction", "column1": "customer_id", "table2": "customer", "column2": "customer_id"},
+      {"table1": "loan", "column1": "branch_id", "table2": "branch", "column2": "branch_id"},
+      {"table1": "loan", "column1": "account_id", "table2": "account", "column2": "account_id"},
+      {"table1": "borrower", "column1": "loan_id", "table2": "loan", "column2": "loan_id"},
+      {"table1": "borrower", "column1": "customer_id", "table2": "customer", "column2": "customer_id"},
+      {"table1": "loan_payment", "column1": "loan_id", "table2": "loan", "column2": "loan_id"}
     ]
-  }
-  
+}
+
