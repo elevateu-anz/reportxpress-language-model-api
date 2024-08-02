@@ -3,18 +3,13 @@ import re
 import os
 import textwrap
 import xml.etree.ElementTree as ET
-import spacy
 import openai
 import google.generativeai as genai
 import pyodbc
-import matplotlib.pyplot as plt
-
+import mysql.connector
+from mysql.connector import Error
 from IPython.display import Markdown
-from matplotlib.backends.backend_pdf import PdfPages
 from datetime import datetime
-
-#load language library
-nlp = spacy.load('en_core_web_sm')
 
 def to_markdown(text):
   '''method to generate the markdown text'''
@@ -111,7 +106,33 @@ def get_gemini_query(request):
     reportquery = get_gemini_response(model, request)
     return reportquery
 
+
 def execute_query(query):
+    '''method to connect with Azure Cloud SQL and execute the query on the application database to get the report data'''
+    connection = mysql.connector.connect(
+        host='elevatu.mysql.pythonanywhere-services.com',
+        user='elevatu',
+        password='',
+        database='elevatu$bank_db'
+        )
+
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute(query)
+        column_names = [column[0] for column in cursor.description]
+        rows = cursor.fetchall()
+        data = [dict(zip(column_names, row)) for row in rows]
+        report_data=[]
+        for row in data:
+            report_data.append(row)
+        cursor.close()
+        connection.close()
+    else:
+        report_data="Error"
+
+    return report_data
+
+def execute_query_azure(query):
     '''method to connect with Azure Cloud SQL and execute the query on the application database to get the report data'''
     server = 'tcp:elevateu-reportxpress.database.windows.net,1433'
     database = 'bank_db'
@@ -142,25 +163,4 @@ def get_report_data(input):
     input += system_message
     query = get_gemini_query(input)
     report_data = extract_data(query)
-    return report_data
-
-def export_report(report_data, type):
-    '''main method to be called from api export endpoint to export the report'''
-    now = datetime.now()
-    date_str = now.strftime("%Y-%m-%d %H:%M:%S")
-    date_str = date_str.replace('-', '_').replace(':', '_')
-    report_file=any
-    if type=='xlsx':
-        report_file = report_data.to_excel('report_' + date_str + '.xlsx', index=False, engine='openpyxl')
-    elif type=='pdf':
-        html = report_data.to_html()
-        with PdfPages('report_' + date_str + '.pdf') as pdf:
-            fig, ax = plt.subplots(figsize=(8, 4))
-            ax.axis('tight')
-            ax.axis('off')
-            table = ax.table(cellText = report_data.values, colLabels = report_data.columns, cellLoc='center', loc='center')
-            report_file = pdf.savefig(fig)
-    else:
-        report_file = 'Report is not vailable in this file format'
-
-    return report_file
+    return str(report_data)

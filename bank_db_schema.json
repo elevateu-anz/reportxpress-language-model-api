@@ -11,7 +11,7 @@
       {"name": "loan_payment", "columns": [{"name": "loan_payment_id", "type": "int"},{"name": "loan_id", "type": "bigint"},{"name": "amount", "type": "int"}]}
     ],
     "relationships": [
-      {"table1": "branch", "column1": "branch_id", "table2": "banker", "column2": "branch_id"}
+      {"table1": "branch", "column1": "branch_id", "table2": "banker", "column2": "branch_id"},
       {"table1": "account", "column1": "branch_id", "table2": "branch", "column2": "branch_id"},
       {"table1": "customer", "column1": "account_id", "table2": "account", "column2": "account_id"},
       {"table1": "credit_card", "column1": "account_id", "table2": "account", "column2": "account_id"},
