@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 import openai
 import google.generativeai as genai
 import pyodbc
+import json
 import mysql.connector
 from mysql.connector import Error
 from IPython.display import Markdown
@@ -106,7 +107,6 @@ def get_gemini_query(request):
     reportquery = get_gemini_response(model, request)
     return reportquery
 
-
 def execute_query(query):
     '''method to connect with Azure Cloud SQL and execute the query on the application database to get the report data'''
     connection = mysql.connector.connect(
@@ -157,10 +157,17 @@ def extract_data(query):
     report_data = execute_query(query)
     return report_data
 
+def build_prompts(input):
+    with open('bank_db_schema.json', 'r') as file:
+        data = json.load(file)
+    prompt_str = str(data) + ", Based on this schema, write a SQL query to: "
+    prompt_str = prompt_str + input
+    prompt_str = prompt_str + ", write only sql query. no any additional text"
+    return prompt_str
+
 def get_report_data(input):
     '''main maithod to be called from api end-point'''
-    system_message='. write only sql query. no any additional text'
-    input += system_message
-    query = get_gemini_query(input)
+    request_input = build_prompts(input)
+    query = get_gemini_query(request_input)
     report_data = extract_data(query)
     return str(report_data)
